@@ -58,30 +58,21 @@ func run() error {
 		return err
 	}
 
-	var pc portCalls
-	err := readfile(portCallsFile, &pc)
-	if errors.Is(err, os.ErrNotExist) || (err == nil && pc.PortCallsUpdated.Before(time.Now().Add(-time.Hour))) {
-		if err := download(portCallsFile, portCallsURL); err != nil {
-			return err
-		}
-
-		err = readfile(portCallsFile, &pc)
-		if err != nil {
-			return err
-		}
+	// Get portcalls and convert to portEvents
+	pc, err := getPortCalls()
+	if err != nil {
+		return err
 	}
+	events, err := portEvents(pc, portCode)
 	if err != nil {
 		return err
 	}
 
+	// Use tabwriter for formatting and buffer the output so that log messages
+	// won't interfere with port call output
 	var buf bytes.Buffer
 	tw := tabwriter.NewWriter(&buf, 0, 0, 4, ' ', 0)
 	fmt.Fprintf(tw, "Last update: %s\n", pc.PortCallsUpdated.Local().Format("2006-01-02 15:04"))
-
-	events, err := portEvents(&pc, portCode)
-	if err != nil {
-		return err
-	}
 	for _, e := range events {
 		// Don't show events that happened more than one day ago
 		if e.timestamp().Before(time.Now().AddDate(0, 0, -1)) {
@@ -144,6 +135,26 @@ type portCalls struct {
 			ETD          time.Time `json:"etd"`
 		} `json:"PortAreaDetails"`
 	} `json:"portCalls"`
+}
+
+func getPortCalls() (*portCalls, error) {
+	var pc portCalls
+	err := readfile(portCallsFile, &pc)
+	if errors.Is(err, os.ErrNotExist) || (err == nil && pc.PortCallsUpdated.Before(time.Now().Add(-time.Hour))) {
+		if err := download(portCallsFile, portCallsURL); err != nil {
+			return nil, err
+		}
+
+		err = readfile(portCallsFile, &pc)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return &pc, nil
 }
 
 const (

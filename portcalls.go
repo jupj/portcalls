@@ -114,7 +114,7 @@ const (
 
 // portCalls is returned from portCallsURL
 type portCalls struct {
-	PortCallsUpdated time.Time `json:"portCallsUpdated"`
+	PortCallsUpdated timestamp `json:"portCallsUpdated"`
 	PortCalls        []struct {
 		PortToVisit    string `json:"portToVisit"`
 		PrevPort       string `json:"prevPort"`
@@ -129,10 +129,10 @@ type portCalls struct {
 		} `json:"imoInformation"`
 		PortAreaDetails []struct {
 			PortAreaName string    `json:"portAreaName"`
-			ATA          time.Time `json:"ata"`
-			ATD          time.Time `json:"atd"`
-			ETA          time.Time `json:"eta"`
-			ETD          time.Time `json:"etd"`
+			ATA          timestamp `json:"ata"`
+			ATD          timestamp `json:"atd"`
+			ETA          timestamp `json:"eta"`
+			ETD          timestamp `json:"etd"`
 		} `json:"PortAreaDetails"`
 	} `json:"portCalls"`
 }
@@ -166,7 +166,7 @@ const (
 type vesselDetails struct {
 	MMSI               int       `json:"mmsi"`
 	Name               string    `json:"name"`
-	UpdateTimestamp    time.Time `json:"updateTimestamp"`
+	UpdateTimestamp    timestamp `json:"updateTimestamp"`
 	VesselConstruction struct {
 		VesselTypeCode int    `json:"vesselTypeCode"`
 		VesselTypeName string `json:"vesselTypeName"`
@@ -227,6 +227,17 @@ func getVesselDetails(mmsi, imoLloyds int, name string) (*vesselDetails, error) 
 }
 
 // *** Utils ***
+
+type timestamp struct{ time.Time }
+
+func (t *timestamp) UnmarshalJSON(data []byte) error {
+	if bytes.HasPrefix(data, []byte(`"-0001`)) {
+		// Empty date
+		t.Time = time.Time{}
+		return nil
+	}
+	return t.Time.UnmarshalJSON(data)
+}
 
 // readfile decodes a json file into v
 func readfile(filename string, v any) error {

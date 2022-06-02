@@ -22,7 +22,7 @@ import (
 func main() {
 	err := run()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 

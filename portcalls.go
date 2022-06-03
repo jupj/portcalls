@@ -140,7 +140,7 @@ type portCalls struct {
 func getPortCalls() (*portCalls, error) {
 	var pc portCalls
 	err := readfile(portCallsFile, &pc)
-	if errors.Is(err, os.ErrNotExist) || (err == nil && pc.PortCallsUpdated.Before(time.Now().Add(-time.Hour))) {
+	if err != nil || pc.PortCallsUpdated.Before(time.Now().Add(-time.Hour)) {
 		if err := download(portCallsFile, portCallsURL); err != nil {
 			return nil, err
 		}
@@ -149,9 +149,6 @@ func getPortCalls() (*portCalls, error) {
 		if err != nil {
 			return nil, err
 		}
-	}
-	if err != nil {
-		return nil, err
 	}
 
 	return &pc, nil

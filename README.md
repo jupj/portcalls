@@ -9,7 +9,7 @@ Portcalls retrieves open data from
 Example output:
 
 ```
-$ portcalls
+$ portcalls -p FIKOK
 Last update: 2022-05-29 14:56
 2022-05-29 12:10 (A)    Arrival      HOPEAKIVEN SATAMA    Fjordstraum NO    100m / 17m    Tanker
 2022-05-30 00:01 (E)    Departure    HOPEAKIVEN SATAMA    Fjordstraum NO    100m / 17m    Tanker

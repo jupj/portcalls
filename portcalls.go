@@ -59,6 +59,14 @@ func run() error {
 		return err
 	}
 
+	// Write log to file
+	logf, err := os.OpenFile("portcalls.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer logf.Close()
+	log.SetOutput(logf)
+
 	// Get portcalls and convert to portEvents
 	pc, err := getPortCalls()
 	if err != nil {

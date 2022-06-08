@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 	"text/tabwriter"
 	"time"
 )
@@ -326,6 +327,7 @@ func portEvents(pc *portCalls, port string) ([]portEvent, error) {
 
 func getCacheDir() string {
 	appname := filepath.Base(os.Args[0])
+	appname = strings.TrimSuffix(appname, filepath.Ext(appname))
 
 	// Use the XDG cache dir in first place
 	if os.Getenv("XDG_CACHE_HOME") != "" {
